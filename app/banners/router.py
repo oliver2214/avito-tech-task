@@ -38,8 +38,8 @@ def banner(token: Annotated[str, Header()] = "admin_token",
 
 
 @router.post("/banner")
-def post_banner(token: Annotated[str, Header()] = "admin_token",
-                banner: SBanner = None):
+def post_banner(banner: SBanner,
+                token: Annotated[str, Header()] = "admin_token"):
 
     return banner
 
