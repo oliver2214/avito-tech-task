@@ -2,6 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Header
 
 from app.banners.schemas import SBanner
+from app.banners.dao import BannersDAO
 
 
 router = APIRouter()
@@ -27,14 +28,8 @@ def banner(token: Annotated[str, Header()] = "admin_token",
            tag_id: int = None,
            limit: int = None,
            offset: int = None):
-
-    return {
-        "token": token,
-        "feature_id": feature_id,
-        "tag_id": tag_id,
-        "limit": limit,
-        "offset": offset
-    }
+    banners = BannersDAO.banner(feature_id, tag_id, limit, offset)
+    return banners
 
 
 @router.post("/banner")
