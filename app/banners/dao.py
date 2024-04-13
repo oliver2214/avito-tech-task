@@ -6,6 +6,21 @@ from sqlalchemy.orm import selectinload, joinedload
 
 class BannersDAO:
     @staticmethod
+    def user_banner(feature_id, tag_id):
+        with session_factory() as session:
+            query = (select(BannersORM)
+                     .options(selectinload(BannersORM.tags))
+                     .filter(BannersORM.feature_id == feature_id)
+                     .join(BannersORM.tags)
+                     .filter(TagsORM.tag_id == tag_id)
+            )
+
+            response = session.execute(query)
+            banner = response.scalar()
+
+            return banner.content if banner else None
+
+    @staticmethod
     def banner(feature_id, tag_id, limit, offset):
         with session_factory() as session:
             query = (select(BannersORM)

@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Any, Dict
 from fastapi import APIRouter, Header, HTTPException
 
 from app.banners.schemas import SBanner
@@ -12,13 +12,17 @@ router = APIRouter()
 def user_banner(tag_id: int,
                 feature_id: int,
                 use_last_revision: bool = False,
-                token: Annotated[str, Header()] = "user_token"):
+                token: Annotated[str, Header()] = "user_token") -> Dict[str, Any]:
     if len(token) == 0:
         raise HTTPException(status_code=401, detail="Пользователь не авторизован")
-    elif token != "admin_token":
+    elif token not in ("user_token", "admin_token"):
         raise HTTPException(status_code=403, detail="Пользователь не имеет доступа")
-    user_banner = BannersDAO.user_banner(tag_id, feature_id)
-    return user_banner
+
+    content = BannersDAO.user_banner(feature_id, tag_id)
+
+    if content is None:
+        raise HTTPException(status_code=404, detail="Баннер не найден")
+    return content
 
 
 @router.get("/banner")
@@ -31,6 +35,7 @@ def banner(token: Annotated[str | None, Header()] = "admin_token",
         raise HTTPException(status_code=401, detail="Пользователь не авторизован")
     elif token != "admin_token":
         raise HTTPException(status_code=403, detail="Пользователь не имеет доступа")
+
     banners = BannersDAO.banner(feature_id, tag_id, limit, offset)
     return banners
 
