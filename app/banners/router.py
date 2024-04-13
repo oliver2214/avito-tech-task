@@ -1,7 +1,7 @@
 from typing import Annotated, Any, Dict
 from fastapi import APIRouter, Header
 from .exceptions import InvalidDataException, UnauthorizedException, ForbiddenException, NotFoundException
-
+from fastapi.responses import Response
 from .schemas import SBanner
 from .dao import BannersDAO
 
@@ -57,9 +57,15 @@ def post_banner(banner: SBanner,
 
 @router.patch("/banner/{id}", summary="Обновление содержимого баннера")
 def patch_banner(id: int,
-                 token: Annotated[str, Header()] = "admin_token",
-                 banner: SBanner = None):
-    return banner
+                 banner: SBanner,
+                 token: Annotated[str, Header()] = "admin_token"):
+    if len(token) == 0:
+        raise UnauthorizedException()
+    elif token != "admin_token":
+        raise ForbiddenException()
+
+    BannersDAO.patch_banner(id, banner)
+    return Response(status_code=200)
 
 
 @router.delete("/banner/{id}", summary="Удаление баннера по идентификатору")

@@ -1,9 +1,10 @@
-from .exceptions import InvalidDataException
 from sqlalchemy import select
+from .exceptions import NotFoundException
 from app.database import session_factory
-from app.banners.models import FeaturesORM, BannersORM, TagsORM
-from sqlalchemy.orm import selectinload, joinedload
-from app.banners.schemas import SBanner
+from .models import FeaturesORM, BannersORM, TagsORM
+from sqlalchemy.orm import selectinload
+from .schemas import SBanner
+from .services import *
 
 
 class BannersDAO:
@@ -55,7 +56,7 @@ class BannersDAO:
 
     @staticmethod
     def post_banner(banner: SBanner):
-        '''К БД выполняется 6 запросов:
+        '''К БД выполняется 7 запросов:
         1. Проверка что такого сочетания фичи и каждого тега в списке нет в бд
         2. Поиск всех тегов, которые необходимо добавить в БД, которых нет
         3. Добавление новых тегов, если нет
@@ -65,34 +66,13 @@ class BannersDAO:
         7. Добавление баннера'''
         with session_factory() as session:
             # 1. Проверка сочетания фичи и каждого тега
-            query = (select(BannersORM)
-                     .options(selectinload(BannersORM.tags))
-                     .filter(BannersORM.feature_id == banner.feature_id)
-                     .join(BannersORM.tags)
-                     .filter(TagsORM.tag_id.in_(banner.tag_ids))
-            )
+            check_feature_tags_combination(session, banner)
 
-            existing_banner_response = session.execute(query)
-            existing_banner = existing_banner_response.scalar()
+            # 2 - 3. Поиск всех тегов, которых еще нет в БД и добавление их в базу
+            add_missing_tags(session, banner)
 
-            if existing_banner:
-                raise InvalidDataException(detail="Попытка создания баннера с имеющимся сочетанием фича - тег")
-
-            # 2. Поиск всех тегов, которые необходимо добавить
-            existing_tags = session.query(TagsORM.tag_id).filter(TagsORM.tag_id.in_(banner.tag_ids)).all()
-            existing_tags = {tag.tag_id for tag in existing_tags}
-            missing_tags = [tag_id for tag_id in banner.tag_ids if tag_id not in existing_tags]
-            # 3. Добавление новых тегов
-            for tag_id in missing_tags:
-                session.add(TagsORM(tag_id=tag_id))
-            session.flush()
-
-            # 4. Поиск фичи
-            feature = session.query(FeaturesORM).filter_by(feature_id=banner.feature_id).first()
-            # 5. Добавление фичи
-            if not feature:
-                session.add(FeaturesORM(feature_id=banner.feature_id))
-                session.flush()
+            # 4 - 5. Поиск фичи и добавление при ее отсутствии
+            add_feature_if_missing(session, banner)
 
             # Определение баннера
             new_banner = BannersORM(
@@ -111,3 +91,41 @@ class BannersDAO:
             session.commit()
 
             return new_banner.banner_id
+
+    @staticmethod
+    def patch_banner(banner_id, banner: SBanner):
+        with session_factory() as session:
+            # 1. Проверка сочетания фичи и каждого тега
+            if banner.tag_ids and banner.feature_id:
+                check_feature_tags_combination(session, banner)
+
+            # 2 - 3. Поиск всех тегов, которых еще нет в БД и добавление их в базу
+            if banner.tag_ids:
+                add_missing_tags(session, banner)
+
+            # 4 - 5. Поиск фичи и добавление при ее отсутствии
+            if banner.feature_id:
+                add_feature_if_missing(session, banner)
+
+            # Получение существующего баннера
+            existing_banner = session.get(BannersORM, banner_id)
+            if not existing_banner:
+                raise NotFoundException(detail="Баннер не найден")
+
+            # Обновление параметров баннера, если они переданы и не являются None
+            if banner.tag_ids:
+                tags = session.execute(select(TagsORM).filter(TagsORM.tag_id.in_(banner.tag_ids))).scalars().all()
+                existing_banner.tags.clear()  # Очищаем старые теги
+                for tag in tags:
+                    tag.banners.append(existing_banner)
+
+            if banner.feature_id is not None:
+                existing_banner.feature_id = banner.feature_id
+
+            if banner.content is not None:
+                existing_banner.content = banner.content
+
+            if banner.is_active is not None:
+                existing_banner.is_active = banner.is_active
+
+            session.commit()
