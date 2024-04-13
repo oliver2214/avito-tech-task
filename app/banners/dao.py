@@ -129,3 +129,13 @@ class BannersDAO:
                 existing_banner.is_active = banner.is_active
 
             session.commit()
+
+    @staticmethod
+    def delete_banner(banner_id):
+        with session_factory() as session:
+            banner = session.get(BannersORM, banner_id)
+            if not banner:
+                raise NotFoundException(detail="Баннер не найден")
+
+            session.delete(banner)
+            session.commit()

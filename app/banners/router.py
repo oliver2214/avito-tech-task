@@ -68,7 +68,13 @@ def patch_banner(id: int,
     return Response(status_code=200)
 
 
-@router.delete("/banner/{id}", summary="Удаление баннера по идентификатору")
+@router.delete("/banner/{id}", summary="Удаление баннера по идентификатору", status_code=204)
 def delete_banner(id: int,
                   token: Annotated[str, Header()] = "admin_token"):
-    return id
+    if len(token) == 0:
+        raise UnauthorizedException()
+    elif token != "admin_token":
+        raise ForbiddenException()
+
+    BannersDAO.delete_banner(id)
+    return Response(status_code=204)
