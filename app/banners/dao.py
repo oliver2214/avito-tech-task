@@ -21,7 +21,7 @@ class BannersDAO:
             response = session.execute(query)
             banner = response.scalar()
 
-            return banner.content if banner else None
+            return banner
 
     @staticmethod
     def banner(feature_id, tag_id, limit, offset):

@@ -5,11 +5,24 @@ from fastapi.responses import Response
 from .schemas import SBanner
 from .dao import BannersDAO
 
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.decorator import cache
+
+from redis import asyncio as aioredis
+
 
 router = APIRouter()
 
 
+@router.on_event("startup")
+def startup():
+    redis = aioredis.from_url("redis://localhost:6379")
+    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+
+
 @router.get("/user_banner", summary="Получение баннера для пользователя")
+@cache(expire=300)
 def user_banner(tag_id: int,
                 feature_id: int,
                 use_last_revision: bool = False,
@@ -19,11 +32,12 @@ def user_banner(tag_id: int,
     elif token not in ("user_token", "admin_token"):
         raise ForbiddenException()
 
-    content = BannersDAO.user_banner(feature_id, tag_id)
+    banner = BannersDAO.user_banner(feature_id, tag_id)
 
-    if content is None:
+    if banner is None or token == "user_token" and banner.is_active is False:
         raise NotFoundException()
-    return content
+
+    return banner.content
 
 
 @router.get("/banner", summary="Получение всех баннеров c фильтрацией по фиче и/или тегу")
