@@ -68,15 +68,5 @@
             "url": "https://example.com/banner7"
         },
         "is_active":true
-    },
-    {
-        "tag_ids": [8],
-        "feature_id": 8,
-        "content": {
-            "title": "Баннер 8",
-            "url": "https://example.com/banner8",
-            "pool": "Лето"
-        },
-        "is_active":true
     }
 ]

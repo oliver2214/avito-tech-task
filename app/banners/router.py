@@ -27,7 +27,7 @@ def user_banner(tag_id: int,
                 feature_id: int,
                 use_last_revision: bool = False,
                 token: Annotated[str, Header()] = "user_token") -> Dict[str, Any]:
-    if len(token) == 0:
+    if not token:
         raise UnauthorizedException()
     elif token not in ("user_token", "admin_token"):
         raise ForbiddenException()
@@ -46,7 +46,7 @@ def banner(token: Annotated[str | None, Header()] = "admin_token",
            tag_id: int = None,
            limit: int = None,
            offset: int = None):
-    if len(token) == 0:
+    if not token:
         raise UnauthorizedException()
     elif token != "admin_token":
         raise ForbiddenException()
@@ -58,7 +58,7 @@ def banner(token: Annotated[str | None, Header()] = "admin_token",
 @router.post("/banner", status_code=201, summary="Создание нового баннера")
 def post_banner(banner: SBanner,
                 token: Annotated[str, Header()] = "admin_token"):
-    if len(token) == 0:
+    if not token:
         raise UnauthorizedException()
     elif token != "admin_token":
         raise ForbiddenException()
@@ -73,7 +73,7 @@ def post_banner(banner: SBanner,
 def patch_banner(id: int,
                  banner: SBanner,
                  token: Annotated[str, Header()] = "admin_token"):
-    if len(token) == 0:
+    if not token:
         raise UnauthorizedException()
     elif token != "admin_token":
         raise ForbiddenException()
@@ -85,7 +85,7 @@ def patch_banner(id: int,
 @router.delete("/banner/{id}", summary="Удаление баннера по идентификатору", status_code=204)
 def delete_banner(id: int,
                   token: Annotated[str, Header()] = "admin_token"):
-    if len(token) == 0:
+    if not token:
         raise UnauthorizedException()
     elif token != "admin_token":
         raise ForbiddenException()

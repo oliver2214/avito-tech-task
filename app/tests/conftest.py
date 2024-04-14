@@ -7,6 +7,9 @@ from app.config import settings
 from app.database import Base, session_factory, sync_engine
 from app.banners.models import FeaturesORM, BannersORM, TagsORM, Banners_TagsORM
 
+from fastapi.testclient import TestClient
+from app.main import app as fastapi_app
+
 
 @pytest.fixture(scope="session", autouse=True)
 def prepare_database():
@@ -55,3 +58,9 @@ def prepare_database():
             session.add(banner)
 
         session.commit()
+
+
+@pytest.fixture(scope="function")
+def c():
+    with TestClient(app=fastapi_app, base_url="http://test") as c:
+        yield c
