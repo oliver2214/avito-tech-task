@@ -1,7 +1,10 @@
+from typing import Literal
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    MODE: Literal["DEV", "TEST"]
+
     DB_HOST: str
     DB_PORT: int
     DB_USER: str
@@ -13,6 +16,18 @@ class Settings(BaseSettings):
         # DSN
         # postgresql+psycopg://postgres:postgres@localhost:5432/avito_db
         return f"postgresql+psycopg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+
+    TEST_DB_HOST: str
+    TEST_DB_PORT: int
+    TEST_DB_USER: str
+    TEST_DB_PASS: str
+    TEST_DB_NAME: str
+
+    @property
+    def TEST_DATABASE_URL_psycopg(self):
+        # postgresql+psycopg://postgres:postgres@localhost:5432/test_avito_db
+        return f"postgresql+psycopg://{self.TEST_DB_USER}:{self.TEST_DB_PASS}@{self.TEST_DB_HOST}:{self.TEST_DB_PORT}/{self.TEST_DB_NAME}"
+
 
     model_config = SettingsConfigDict(env_file=".env")
 

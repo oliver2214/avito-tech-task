@@ -1,0 +1,82 @@
+[
+    {
+        "tag_ids": [5],
+        "feature_id": 1,
+        "content": {
+            "title": "Banner 1",
+            "text": "Some text for banner 1",
+            "url": "https://example.com/banner1"
+        },
+        "is_active":true
+    },
+    {
+        "tag_ids": [4],
+        "feature_id": 2,
+        "content": {
+            "title": "Banner 2",
+            "text": "Some text for banner 2",
+            "url": "https://example.com/banner2"
+        },
+        "is_active":false
+    },
+    {
+        "tag_ids": [3],
+        "feature_id": 3,
+        "content": {
+            "title": "Banner 3",
+            "text": "Some text for banner 3",
+            "url": "https://example.com/banner3"
+        },
+        "is_active":false
+    },
+    {
+        "tag_ids": [2],
+        "feature_id": 4,
+        "content": {
+            "title": "Banner 4",
+            "text": "Some text for banner 4",
+            "url": "https://example.com/banner4"
+        },
+        "is_active":true
+    },
+    {
+        "tag_ids": [1],
+        "feature_id": 5,
+        "content": {
+            "title": "Banner 5",
+            "text": "Some text for banner 5",
+            "url": "https://example.com/banner5"
+        },
+        "is_active":true
+    },
+    {
+        "tag_ids": [1,2,3,4,5],
+        "feature_id": 6,
+        "content": {
+            "title": "Banner 6",
+            "text": "Some text for banner 6",
+            "url": "https://example.com/banner6"
+        },
+        "is_active":true
+    },
+    {
+        "tag_ids": [6],
+        "feature_id": 1,
+        "content": {
+            "title": "Banner 7",
+            "text": "Some text for banner 7",
+            "url": "https://example.com/banner7"
+        },
+        "is_active":true
+    },
+    {
+        "tag_ids": [8],
+        "feature_id": 8,
+        "content": {
+            "title": "Баннер 8",
+            "url": "https://example.com/banner8",
+            "pool": "Лето"
+        },
+        "is_active":true
+    }
+]

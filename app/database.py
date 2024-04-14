@@ -1,11 +1,19 @@
-from sqlalchemy import create_engine
+from sqlalchemy import NullPool, create_engine
 from app.config import settings
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
 
+if settings.MODE == "TEST":
+    DATABASE_URL = settings.TEST_DATABASE_URL_psycopg
+    DATABASE_PARAMS = {"poolclass": NullPool}
+else:
+    DATABASE_URL = settings.DATABASE_URL_psycopg
+    DATABASE_PARAMS = {}
+
 sync_engine = create_engine(
-    url=settings.DATABASE_URL_psycopg,
-    echo=True
+    url=DATABASE_URL,
+    echo=True,
+    **DATABASE_PARAMS
 )
 
 session_factory = sessionmaker(sync_engine)
