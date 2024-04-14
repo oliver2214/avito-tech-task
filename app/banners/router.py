@@ -26,7 +26,7 @@ def startup():
 def user_banner(tag_id: int,
                 feature_id: int,
                 use_last_revision: bool = False,
-                token: Annotated[str, Header()] = "user_token") -> Dict[str, Any]:
+                token: Annotated[str, Header()] = None) -> Dict[str, Any]:
     if not token:
         raise UnauthorizedException()
     elif token not in ("user_token", "admin_token"):
@@ -41,7 +41,7 @@ def user_banner(tag_id: int,
 
 
 @router.get("/banner", summary="Получение всех баннеров c фильтрацией по фиче и/или тегу")
-def banner(token: Annotated[str | None, Header()] = "admin_token",
+def banner(token: Annotated[str | None, Header()] = None,
            feature_id: int = None,
            tag_id: int = None,
            limit: int = None,
@@ -57,7 +57,7 @@ def banner(token: Annotated[str | None, Header()] = "admin_token",
 
 @router.post("/banner", status_code=201, summary="Создание нового баннера")
 def post_banner(banner: SBanner,
-                token: Annotated[str, Header()] = "admin_token"):
+                token: Annotated[str, Header()] = None):
     if not token:
         raise UnauthorizedException()
     elif token != "admin_token":
@@ -72,7 +72,7 @@ def post_banner(banner: SBanner,
 @router.patch("/banner/{id}", summary="Обновление содержимого баннера")
 def patch_banner(id: int,
                  banner: SBanner,
-                 token: Annotated[str, Header()] = "admin_token"):
+                 token: Annotated[str, Header()] = None):
     if not token:
         raise UnauthorizedException()
     elif token != "admin_token":
@@ -84,7 +84,7 @@ def patch_banner(id: int,
 
 @router.delete("/banner/{id}", summary="Удаление баннера по идентификатору", status_code=204)
 def delete_banner(id: int,
-                  token: Annotated[str, Header()] = "admin_token"):
+                  token: Annotated[str, Header()] = None):
     if not token:
         raise UnauthorizedException()
     elif token != "admin_token":
