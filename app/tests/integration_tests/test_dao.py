@@ -100,3 +100,4 @@ def test_add_and_get_banner():
             "text": "Some text for banner 6",
             "url": "https://example.com/banner6"
         }
+    # dima.tovstokor@yandex.ru =)
